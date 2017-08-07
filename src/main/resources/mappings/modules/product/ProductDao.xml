@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.product.dao.ProductDao">
+    
+   <sql id="productColumns">
+    	a.id, 
+    	a.product_name, 
+    	a.product_no, 
+    	a.product_price, 
+    	a.pic_path, 
+    	a.product_content, 
+    	a.pulish_date, 
+    	a.product_state, 
+    	a.create_by, 
+    	a.create_date, 
+    	a.update_by, 
+    	a.update_date, 
+    	a.remarks, 
+    	a.del_flag,
+    	a.product_type_id
+    </sql>
+    
+	<select id="get" resultType="Product">
+		SELECT 
+			<include refid="productColumns"/>
+		FROM product_info a
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Product">
+		SELECT 
+			<include refid="productColumns"/>
+		FROM product_info a
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+		<if test="productName != null and productName != ''">
+			AND a.product_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{productName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{productName}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{productName}, '%')</if>
+		</if>
+		<if test=" productTypeId != null and productTypeId != ''">
+			AND a.product_type_id = #{productTypeId} 
+		</if>
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<select id="findAllList" resultType="Product">
+		SELECT 
+			* 
+		FROM product_info 
+		WHERE del_flag = #{DEL_FLAG_NORMAL} 
+		ORDER BY update_date DESC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO product_info(
+			id, 
+			product_name, 
+			product_no,
+			product_price,
+			pic_path,
+			product_content,
+			pulish_date,
+			product_state,
+			product_type_id,
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag
+		) VALUES (
+			#{id}, 
+			#{productName}, 
+			#{productNo}, 
+			#{productPrice}, 
+			#{picPath}, 
+			#{productContent}, 
+			#{pulishDate}, 
+			#{productState}, 
+			#{productTypeId}, 
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE product_info SET 
+			product_name = #{productName}, 
+			product_no = #{productNo}, 
+			product_price = #{productPrice}, 
+			pic_path = #{picPath}, 
+			product_content = #{productContent}, 
+			pulish_date = #{pulishDate}, 
+			product_type_id = #{productTypeId}, 
+			update_by = #{updateBy.id}, 
+			update_date = #{updateDate}, 
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE product_info SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	<update id="updateProductState">
+		UPDATE product_info 
+		SET 
+		product_state = #{productState},
+		update_by = #{updateBy.id}, 
+		update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

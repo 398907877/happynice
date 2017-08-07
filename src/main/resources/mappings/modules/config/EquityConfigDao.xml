@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.config.dao.EquityConfigDao">
+    
+	<select id="get" resultType="EquityConfig">
+		SELECT 
+			* 
+		FROM equity_config 
+		WHERE id = #{id}
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO equity_config(
+			id, 
+			price, 
+			charge,
+			split_bonus,
+			split_reg,
+			split_times,
+			ratio,
+			rise_limit,
+			rise_rate,
+			open_state,
+			create_by, 
+			create_date, 
+			update_by, 
+			update_date, 
+			remarks, 
+			del_flag
+		) VALUES (
+			#{id}, 
+			#{price}, 
+			#{charge}, 
+			#{splitBonus}, 
+			#{splitReg}, 
+			#{splitTimes}, 
+			#{ratio}, 
+			#{riseLimit}, 
+			#{riseRate}, 
+			#{openState}, 
+			#{createBy.id}, 
+			#{createDate}, 
+			#{updateBy.id}, 
+			#{updateDate}, 
+			#{remarks}, 
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE equity_config SET 
+			price = #{price},
+			charge = #{charge},
+			split_bonus = #{splitBonus},
+			split_reg = #{splitReg},
+			split_times = #{splitTimes},
+			ratio = #{ratio},
+			rise_limit = #{riseLimit},
+			rise_rate = #{riseRate},
+			open_state = #{openState},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+	
+		<select id="getOpenState" resultType="java.lang.String">
+		SELECT open_state
+		FROM equity_config 
+		WHERE id = #{id}
+	</select>
+	
+</mapper>

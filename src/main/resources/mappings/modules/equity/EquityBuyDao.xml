@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.equity.dao.EquityBuyDao">
+    
+	<sql id="equityBuyColumns">
+		a.id AS "id",
+		a.equity_sell_id AS "equitySellId",
+		a.buy_num AS "buyNum",
+		a.buy_userid as "buyUserid",
+		a.buy_money AS "buyMoney",
+		a.create_date AS "createDate",
+		a.remarks AS "remarks",
+		u.login_name AS "user.loginName",
+		u.name AS "user.name"
+	</sql>
+	
+	<sql id="equityBuyJoins">
+		left join sys_user u on u.id=a.buy_userid
+	</sql>
+    
+	<select id="get" resultType="EquityBuy">
+		SELECT 
+			<include refid="equityBuyColumns"/>
+		FROM equity_buy a
+		<include refid="equityBuyJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="EquityBuy">
+		SELECT 
+			<include refid="equityBuyColumns"/>
+		FROM equity_buy a
+		JOIN sys_user u ON u.id=a.buy_userid
+		<if test="!currentUser.admin">
+			where a.buy_userid=#{buyUserid}
+		</if>
+		<if test="loginName != null and loginName != ''">
+			AND u.login_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{loginName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{loginName}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{loginName}, '%')</if>
+		</if>
+<!-- 		<if test="buyUserid != null and buyUserid != ''">
+			AND a.buy_userid = #{buyUserid}
+		</if> -->
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="EquityBuy">
+		SELECT 
+			<include refid="equityBuyColumns"/>
+		FROM equity_buy a
+		<include refid="equityBuyJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	
+	<insert id="insert">
+		INSERT INTO equity_buy(
+			id,
+			equity_sell_id,
+			buy_num,
+			buy_userid,
+			buy_money,
+			create_date,
+			remarks
+		) VALUES (
+			#{id},
+			#{equitySellId},
+			#{buyNum},
+			#{buyUserid},
+			#{buyMoney},
+			now(),
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE equity_buy SET 	
+			equity_sell_id = #{equitySellId},
+			buy_num = #{buyNum},
+			buy_userid = #{buyUserid},
+			buy_money = #{buyMoney},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM equity_buy
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateSell">
+		UPDATE equity_sell b SET 	
+			b.buy_num = buy_num + #{buyNum}
+			 
+		WHERE b.id = #{equitySellId}
+	</update>
+	
+	<update id="updateSellUserInfo">
+		UPDATE sys_user s SET 	
+			s.wkf = wkf + #{buyNum} * #{buyMoney} *0.85,
+			s.happyfood = happyfood - #{buyNum},
+			s.yxf = yxf + #{buyNum} * #{buyMoney} *0.05
+		WHERE id = #{equitySell.tradingId}
+	</update>
+	
+	<update id="updateBuyUserInfo">
+		UPDATE sys_user s SET 	
+			s.gwf = gwf - #{buyNum} * #{buyMoney} ,
+			s.happyfood = happyfood + #{buyNum}
+		WHERE id = #{buyUserid}
+	</update>
+</mapper>

@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Mon Jul 24 20:45:08 CST 2017
+@default-http\://repo.maven.apache.org/maven2/.lastUpdated=1494558200382
+http\://repo.maven.apache.org/maven2/.error=Could not transfer artifact org.apache.maven.plugins\:maven-clean-plugin\:pom\:2.6.1 from/to central (http\://repo.maven.apache.org/maven2)\: repo.maven.apache.org
+http\://maven.aliyun.com/nexus/content/groups/public/.lastUpdated=1500900308271

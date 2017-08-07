@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.financial.dao.FclWkJhDao">
+    
+	<sql id="fclWkJhColumns">
+		a.id AS "id",
+		a.outnumber_id AS "outnumberId",
+		a.intonumber_id AS "intonumberId",
+		a.changetype AS "changetype",
+		a.money AS "money",
+		a.create_date AS "createDate",
+		a.remarks AS "remarks",
+		u.id AS "user.id", 
+		u.name AS "user.name",
+		u.login_name AS "user.loginName"
+	</sql>
+	
+	<sql id="fclWkJhJoins">
+		JOIN sys_user u ON u.id=a.outnumber_id
+		JOIN sys_user s ON s.id=a.intonumber_id
+	</sql>
+    
+	<select id="get" resultType="FclWkJh">
+		SELECT 
+			<include refid="fclWkJhColumns"/>
+		FROM fcl_wk_jh a
+		<include refid="fclWkJhJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="FclWkJh">
+		SELECT 
+			<include refid="fclWkJhColumns"/>
+		FROM fcl_wk_jh a
+		<include refid="fclWkJhJoins"/>
+		
+		<where>
+			
+		</where>
+		<if test="loginName != null and loginName != ''">
+			AND u.login_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{loginName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{loginName}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{loginName}, '%')</if>
+		</if>
+		<if test="intoName != null and intoName != ''">
+			AND s.login_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{intoName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{intoName}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{intoName}, '%')</if>
+		</if>
+		<if test="changetype != null and changetype != ''">
+			AND a.changetype = #{changetype}
+		</if>
+		<if test="!currentUser.admin">
+			AND a.outnumber_id=#{outnumberId}
+		</if>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="FclWkJh">
+		SELECT 
+			<include refid="fclWkJhColumns"/>
+		FROM fcl_wk_jh a
+		<include refid="fclWkJhJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getUserInfo" resultType="User">
+		SELECT 
+			* from sys_user a
+		WHERE a.id = #{id}
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO fcl_wk_jh(
+			id,
+			outnumber_id,
+			intonumber_id,
+			changetype,
+			money,
+			create_date,
+			remarks
+		) VALUES (
+			#{id},
+			#{outnumberId},
+			#{intonumberId},
+			#{changetype},
+			#{money},
+			now(),
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE fcl_wk_jh SET 	
+			outnumber_id = #{outnumberId},
+			intonumber_id = #{intonumberId},
+			changetype = #{changetype},
+			money = #{money},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM fcl_wk_jh
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateUserJh">
+		UPDATE sys_user SET 
+			wkf = wkf - #{money},
+			jhf = jhf + #{money}
+		WHERE id = #{outnumberId}
+	</update>
+	
+	<update id="updateUserZyy">
+		UPDATE sys_user SET 
+			wkf = wkf - #{money},
+			zyy = zyy + #{money}
+		WHERE id = #{outnumberId}
+	</update>
+</mapper>

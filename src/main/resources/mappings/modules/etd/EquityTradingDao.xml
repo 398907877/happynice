@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.etd.dao.EquityTradingDao">
+    
+	<sql id="equityTradingColumns">
+		a.id AS "id",
+		a.trading_id AS "tradingId",
+		a.trading_type AS "tradingType",
+		a.trading_num AS "tradingNum",
+		a.trading_money AS "tradingMoney",
+		a.create_date AS "createDate",
+		a.remarks AS "remarks",
+		
+		u.id AS "user.id", 
+		u.login_name AS "user.loginName"
+	</sql>
+	
+	<sql id="equityTradingJoins">
+		LEFT JOIN sys_user u ON u.id=a.trading_id
+	</sql>
+    
+	<select id="get" resultType="EquityTrading">
+		SELECT 
+			<include refid="equityTradingColumns"/>
+		FROM equity_trading a
+		<include refid="equityTradingJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="EquityTrading">
+		SELECT 
+			<include refid="equityTradingColumns"/>
+		FROM equity_trading a
+		<include refid="equityTradingJoins"/>
+			WHERE a.trading_type=#{tradingType}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.trading_money ,a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="EquityTrading">
+		SELECT 
+			<include refid="equityTradingColumns"/>
+		FROM equity_trading a
+		<include refid="equityTradingJoins"/>
+		WHERE a.trading_type=#{tradingType}		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.trading_money ,a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO equity_trading(
+			id,
+			trading_id,
+			trading_type,
+			trading_num,
+			trading_money,
+			create_date,
+			remarks
+		) VALUES (
+			#{id},
+			#{tradingId},
+			#{tradingType},
+			#{tradingNum},
+			#{tradingMoney},
+			now(),
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE equity_trading SET 	
+			trading_id = #{tradingId},
+			trading_type = #{tradingType},
+			trading_num = #{tradingNum},
+			trading_money = #{tradingMoney},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM equity_trading
+		WHERE id = #{id}
+	</update>
+	
+	<select id="getMoney" resultType="EquityTrading" useCache="true">
+		SELECT 
+			a.trading_money
+		FROM equity_trading a
+		
+		WHERE a.trading_type='1' and ( a.create_date BETWEEN #{startDate} and  #{endDate})
+	</select>
+</mapper>

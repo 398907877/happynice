@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Sat Jul 29 22:54:45 CST 2017
+@default-http\://repo.maven.apache.org/maven2/.lastUpdated=1494558260438
+http\://repo.maven.apache.org/maven2/.error=Could not transfer artifact org.apache.maven.plugins\:maven-dependency-plugin\:pom\:2.10 from/to central (http\://repo.maven.apache.org/maven2)\: repo.maven.apache.org
+http\://maven.aliyun.com/nexus/content/groups/public/.lastUpdated=1501340085305

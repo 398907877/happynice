@@ -1,0 +1,6 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Thu May 18 21:41:35 CST 2017
+@default-http\://maven.aliyun.com/nexus/content/groups/public/.lastUpdated=1494559596804
+@default-http\://repo.maven.apache.org/maven2/.lastUpdated=1494559611015
+http\://repo.maven.apache.org/maven2/.error=Could not transfer artifact org.apache.maven.plugins\:maven-compiler-plugin\:pom\:3.5.1 from/to central (http\://repo.maven.apache.org/maven2)\: repo.maven.apache.org
+http\://maven.aliyun.com/nexus/content/groups/public/.lastUpdated=1495114895501

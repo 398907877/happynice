@@ -1,0 +1,5 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Mon Jul 24 20:53:42 CST 2017
+@default-http\://repo.maven.apache.org/maven2/.lastUpdated=1494558110281
+http\://repo.maven.apache.org/maven2/.error=Could not transfer artifact org.mortbay.jetty\:jetty-maven-plugin\:pom\:7.6.14.v20131031 from/to central (http\://repo.maven.apache.org/maven2)\: repo.maven.apache.org
+http\://maven.aliyun.com/nexus/content/groups/public/.lastUpdated=1500900822552

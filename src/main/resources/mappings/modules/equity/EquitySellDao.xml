@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.equity.dao.EquitySellDao">
+    
+	<sql id="equitySellColumns">
+		a.id AS "id",
+		a.trading_id AS "tradingId",
+		a.trading_num AS "tradingNum",
+		a.buy_num AS "buyNum",
+		a.trading_money AS "tradingMoney",
+		a.create_date AS "createDate",
+		a.repeal_flag AS "repealFlag",
+		a.remarks AS "remarks",
+		a.trading_money*a.buy_num AS "totalMoney",
+		s.login_name AS "user.loginName",
+		s.name AS "user.name",
+		s.gwf AS "user.gwf"
+	</sql>
+	
+	<sql id="equitySellJoins">
+		LEFT JOIN equity_buy u ON u.equity_sell_id=a.id
+		LEFT JOIN sys_user s ON a.trading_id=s.id
+	</sql>
+    
+	<select id="get" resultType="EquitySell">
+		SELECT 
+			<include refid="equitySellColumns"/>
+		FROM equity_sell a
+		LEFT JOIN sys_user s ON a.trading_id=s.id
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getEquitySellId" resultType="EquitySell">
+		SELECT 
+			*
+		FROM equity_sell a
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="EquitySell">
+		SELECT 
+			<include refid="equitySellColumns"/>
+		FROM equity_sell a
+		JOIN sys_user s ON a.trading_id=s.id
+		
+		where a.repeal_flag='0'
+		<if test="loginName != null and loginName != ''">
+			AND s.login_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{loginName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{loginName}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{loginName}, '%')</if>
+		</if>
+		<if test="!currentUser.admin">
+			AND a.trading_id=#{tradingId}
+		</if>
+<!-- 		<if test="tradingId != null and tradingId != ''">
+			AND a.trading_id = #{tradingId}
+		</if> -->
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="EquitySell">
+		SELECT 
+			<include refid="equitySellColumns"/>
+		FROM equity_sell a
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	<select id="getMoney" resultType="EquitySell">
+		SELECT 
+			<include refid="equitySellColumns"/>
+		FROM equity_sell a
+		LEFT JOIN sys_user s ON a.trading_id=s.id
+		WHERE a.trading_num != a.buy_num and a.repeal_flag='0'
+		order by CAST(a.trading_money AS DECIMAL(18,2)),a.create_date limit 1
+	</select>
+	<select id="getSellList" resultType="EquitySell">
+		SELECT 
+			*
+		FROM equity_sell a
+		
+		WHERE a.buy_num != '0' and a.id=#{id}
+	</select>
+	<insert id="insert">
+		INSERT INTO equity_sell(
+			id,
+			trading_id,
+			trading_num,
+			trading_money,
+			create_date,
+			remarks
+		) VALUES (
+			#{id},
+			#{tradingId},
+			#{tradingNum},
+			#{tradingMoney},
+			#{createDate},
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE equity_sell SET 	
+			trading_id = #{tradingId},
+			trading_num = #{tradingNum},
+			trading_money = #{tradingMoney},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM equity_sell
+		WHERE id = #{id}
+	</update>
+	
+	<update id="repealSell">
+		update equity_sell set repeal_flag='1'
+		WHERE id = #{id}
+	</update>
+	<select id="getMinTradingMoney" resultType="java.lang.String">
+		SELECT trading_money
+		FROM equity_sell a
+		WHERE a.repeal_flag=#{repealFlag}
+		and a.trading_num != a.buy_num
+		order by CAST(a.trading_money AS DECIMAL(18,2)),a.create_date limit 1
+	</select>
+	<update id="resetAllSell">
+		update equity_sell set repeal_flag='1'
+	</update>
+	
+</mapper>

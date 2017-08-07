@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.financial.dao.FclTransferDao">
+    
+	<sql id="fclTransferColumns">
+		a.id AS "id",
+		a.outnumber_id AS "outnumberId",
+		a.intonumber_id AS "intonumberId",
+		a.trans_type AS "transType",
+		a.trans_money AS "transMoney",
+		a.create_date AS "createDate",
+		a.remarks AS "remarks",
+		u.id AS "user.id", 
+		u.login_name AS "user.loginName",
+		u.name AS "user.name",
+		su.login_name AS "username",
+		su.name AS "uname",
+		su.id AS "user.userid"
+	</sql>
+	
+	<sql id="fclTransferJoins">
+		LEFT JOIN sys_user u ON u.id=a.outnumber_id
+		LEFT JOIN sys_user su ON su.id=a.intonumber_id
+		
+	</sql>
+    
+	<select id="get" resultType="FclTransfer">
+		SELECT 
+			<include refid="fclTransferColumns"/>
+		FROM fcl_transfer a
+		<include refid="fclTransferJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="FclTransfer">
+		SELECT 
+			<include refid="fclTransferColumns"/>
+		FROM fcl_transfer a
+		JOIN sys_user u ON u.id=a.outnumber_id
+		JOIN sys_user su ON su.id=a.intonumber_id
+		<where>
+			
+		<if test="loginName != null and loginName != ''">
+			AND u.login_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{loginName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{loginName}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{loginName}, '%')</if>
+		</if>
+		<if test="username != null and username != ''">
+			AND su.login_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{username}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{username}+'%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%', #{username}, '%')</if>
+		</if>
+		<if test="!currentUser.admin">
+			AND a.outnumber_id=#{outnumberId}
+		</if>
+		<if test="transType != null and transType != ''">
+			AND a.trans_type = #{transType}
+		</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="FclTransfer">
+		SELECT 
+			<include refid="fclTransferColumns"/>
+		FROM fcl_transfer a
+		<include refid="fclTransferJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getUserInfo" resultType="User">
+		SELECT 
+			* from sys_user a
+		WHERE a.id = #{id}
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO fcl_transfer(
+			id,
+			outnumber_id,
+			intonumber_id,
+			trans_type,
+			trans_money,
+			create_date,
+			remarks
+		) VALUES (
+			#{id},
+			#{outnumberId},
+			#{intonumberId},
+			#{transType},
+			#{transMoney},
+			now(),
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE fcl_transfer SET 	
+			outnumber_id = #{outnumberId},
+			intonumber_id = #{intonumberId},
+			trans_money = #{transMoney},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM fcl_transfer
+		WHERE id = #{id}
+	</update>
+	<!-- 更新转入编号激活分 -->
+	<update id="updateUserIntoJh">
+		UPDATE sys_user SET 
+			
+			jhf = jhf + #{transMoney}
+		WHERE id = #{intonumberId}
+	</update>
+	<!-- 更新转出编号激活分 -->
+	<update id="updateUserOutJh">
+		UPDATE sys_user SET 
+			
+			jhf = jhf - #{transMoney}
+		WHERE id = #{outnumberId}
+	</update>
+	<!-- 更新转入编号权证分 -->
+	<update id="updateUserIntoQz">
+		UPDATE sys_user SET 
+			
+			qzf = qzf + #{transMoney}
+		WHERE id = #{intonumberId}
+	</update>
+	<!-- 更新转出编号权证分 -->
+	<update id="updateUserOutQz">
+		UPDATE sys_user SET 
+			
+			qzf = qzf - #{transMoney}
+		WHERE id = #{outnumberId}
+	</update>
+</mapper>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.sys.dao.RewardDetailDao">
+
+    <sql id="rewardColumns">
+        a.id,
+        a.dp,
+        a.tj,
+        a.ld,
+        a.create_by AS "createBy.id",
+        a.create_date,
+        a.update_by AS "updateBy.id",
+        a.update_date,
+        a.gwf,
+        a.yxf,
+        a.wkf,
+        ou.id AS "user.id"
+    </sql>
+
+    <sql id="rewardJoins">
+        LEFT JOIN sys_user ou ON ou.id = a.user_id
+    </sql>
+
+    <select id="get" resultType="RewardDetail">
+        SELECT
+        <include refid="rewardColumns"/>
+        FROM t_reward_detail a
+        <include refid="rewardJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <!-- 分页查询用户信息 -->
+    <select id="findList" resultType="RewardDetail">
+        SELECT
+        <include refid="rewardColumns"/>
+        FROM t_reward_detail a
+        <include refid="rewardJoins"/>
+        WHERE a.user_id = #{user.id}
+        ORDER BY a.create_date DESC
+    </select>
+
+    <!-- 查询全部用户 -->
+    <select id="findAllList" resultType="RewardDetail">
+        SELECT
+        <include refid="rewardColumns"/>
+        FROM t_reward_detail a
+        <include refid="rewardJoins"/>
+        WHERE a.user_id = #{user.id}
+        ORDER BY a.create_date DESC
+    </select>
+
+    <!-- 查询全部用户数目 -->
+    <select id="findAllCount" resultType="long">
+        SELECT
+        COUNT(1)
+        FROM t_reward_detail a
+    </select>
+
+    <!-- 插入用户 -->
+    <insert id="insert">
+        INSERT INTO t_reward_detail(
+        id,
+        ld,
+        tj,
+        dp,
+        user_id,
+        create_by,
+        create_date,
+        update_by,
+        update_date,
+        wkf,
+        yxf,
+        gwf
+        ) VALUES (
+        #{id},
+        #{ld},
+        #{tj},
+        #{dp},
+        #{user.id},
+        #{createBy.id},
+        #{createDate},
+        #{updateBy.id},
+        #{updateDate},
+        #{wkf},
+        #{yxf},
+        #{gwf}
+        )
+    </insert>
+
+</mapper>
